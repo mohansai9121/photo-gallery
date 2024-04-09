@@ -9,10 +9,10 @@ const App = () => {
   }, [])
   console.log(initialImages)
   return (
-    <div>
+    <div className='img_grid'>
       {initialImages.map((image,index)=>{
         return(
-          <div key={index} className='img_grid'>
+          <div key={index}>
             <img src={image.url} alt={image.public_id}/>
           </div>
         )
