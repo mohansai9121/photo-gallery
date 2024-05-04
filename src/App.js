@@ -2,15 +2,18 @@ import React, { useEffect, useState } from 'react'
 import images from './images.json'
 import { getImages, searchImages } from './api'
 import './App.css'
+import addImage from './addImage.png'
 
 const App = () => {
   const [initialImages, setInitialImages] = useState([])
   const [nextCursor, setNextCursor] = useState(null)
   const [searchValue, setSearchValue] = useState('')
+  const [newImages, setNewImages] = useState([])
 
   useEffect(()=>{
     setInitialImages(images.resources)
   }, [])
+
   useEffect(()=>{
     const fetchData = async ()=>{
       const responseJson = await getImages()
@@ -18,6 +21,13 @@ const App = () => {
       setNextCursor(responseJson.next_cursor)
     }
     fetchData()
+  },[])
+
+  useEffect(()=>{
+    let added = JSON.parse(localStorage.getItem('images'))
+    if(added){
+      setNewImages(added)
+    }
   },[])
 
   const handleLoadMore = async ()=>{
@@ -37,13 +47,29 @@ const App = () => {
 
     setSearchValue('')
   }
+
   const resetForm = async ()=>{
     const responseJson = await getImages()
     setInitialImages(responseJson.resources)
     setNextCursor(responseJson.next_cursor)
     setSearchValue("")
   }
+
+  const imageHandler = (e)=>{
+    let newImage = URL.createObjectURL(e.target.files[0])
+    let newImages1 = [...newImages]
+    newImages1.push(newImage)
+    setNewImages(newImages1)
+    localStorage.setItem('images',JSON.stringify(newImages1))
+  }
+
+  const addingImage = ()=>{
+    document.getElementById('inputImage').click()
+  }
+
   console.log(initialImages)
+  console.log(newImages)
+
   return (
     /*<div className='img_grid'>
       {initialImages.map((image,index)=>{
@@ -68,6 +94,15 @@ const App = () => {
             </div>
           )
         })}
+        {newImages?newImages.map((image, idx)=>{
+          return(
+            <div key={idx}>
+              <img src={image} alt='new' title={`image${idx+1}`} />
+            </div>
+          )
+        }):''}
+        <button onClick={addingImage}><img src={addImage} alt='Add' title='Add Image' width={50} height={60} /></button>
+        <input type='file' accept='image/*' onChange={imageHandler} id='inputImage' style={{display:'none'}} />
       </div>
       <div className='footer'>
         <button type='button' onClick={handleLoadMore} style={{margin:'1%'}}>Load More</button>
