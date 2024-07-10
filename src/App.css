@@ -1,17 +1,17 @@
-img{
+img {
   height: 100%;
   width: 100%;
   box-shadow: 0px 0px 5px gray;
 }
-img:hover{
+img:hover {
   box-shadow: 7px 10px 20px gray;
 }
-.img_grid{
-  display:grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+.img_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 0.7rem;
 }
-.footer{
+.footer {
   display: flex;
   justify-content: center;
 }

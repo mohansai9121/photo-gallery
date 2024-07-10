@@ -1,74 +1,65 @@
-import React, { useEffect, useState } from 'react'
-import images from './images.json'
-import { getImages, searchImages } from './api'
-import './App.css'
-import addImage from './addImage.png'
+import React, { useEffect, useState } from "react";
+import images from "./images.json";
+import { getImages, searchImages } from "./api";
+import "./App.css";
+import addImage from "./addImage.png";
 
 const App = () => {
-  const [initialImages, setInitialImages] = useState([])
-  const [nextCursor, setNextCursor] = useState(null)
-  const [searchValue, setSearchValue] = useState('')
-  const [newImages, setNewImages] = useState([])
+  const [initialImages, setInitialImages] = useState([]);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [newImages, setNewImages] = useState([]);
 
-  useEffect(()=>{
-    setInitialImages(images.resources)
-  }, [])
+  useEffect(() => {
+    setInitialImages(images.resources);
+  }, []);
 
-  useEffect(()=>{
-    const fetchData = async ()=>{
-      const responseJson = await getImages()
-      setInitialImages(responseJson.resources)
-      setNextCursor(responseJson.next_cursor)
+  useEffect(() => {
+    const fetchData = async () => {
+      const responseJson = await getImages();
+      setInitialImages(responseJson.resources);
+      setNextCursor(responseJson.next_cursor);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    let added = JSON.parse(localStorage.getItem("images"));
+    if (added) {
+      setNewImages(added);
     }
-    fetchData()
-  },[])
+  }, []);
 
-  useEffect(()=>{
-    let added = JSON.parse(localStorage.getItem('images'))
-    if(added){
-      setNewImages(added)
-    }
-  },[])
+  const formSubmit = async (e) => {
+    e.preventDefault();
+    const responseJson = await searchImages(searchValue, nextCursor);
+    setInitialImages(responseJson.resources);
+    setNextCursor(responseJson.next_cursor);
 
-  const handleLoadMore = async ()=>{
-    const responseJson = await getImages(nextCursor)
-    setInitialImages((currentImages)=>[
-      ...currentImages,
-      ...responseJson.resources
-    ])
-    setNextCursor(responseJson.next_cursor)
-  }
+    setSearchValue("");
+  };
 
-  const formSubmit = async (e)=>{
-    e.preventDefault()
-    const responseJson = await searchImages(searchValue, nextCursor)
-    setInitialImages(responseJson.resources)
-    setNextCursor(responseJson.next_cursor)
+  const resetForm = async () => {
+    const responseJson = await getImages();
+    setInitialImages(responseJson.resources);
+    setNextCursor(responseJson.next_cursor);
+    setSearchValue("");
+  };
 
-    setSearchValue('')
-  }
+  const imageHandler = (e) => {
+    let newImage = URL.createObjectURL(e.target.files[0]);
+    let newImages1 = [...newImages];
+    newImages1.push(newImage);
+    setNewImages(newImages1);
+    localStorage.setItem("images", JSON.stringify(newImages1));
+  };
 
-  const resetForm = async ()=>{
-    const responseJson = await getImages()
-    setInitialImages(responseJson.resources)
-    setNextCursor(responseJson.next_cursor)
-    setSearchValue("")
-  }
+  const addingImage = () => {
+    document.getElementById("inputImage").click();
+  };
 
-  const imageHandler = (e)=>{
-    let newImage = URL.createObjectURL(e.target.files[0])
-    let newImages1 = [...newImages]
-    newImages1.push(newImage)
-    setNewImages(newImages1)
-    localStorage.setItem('images',JSON.stringify(newImages1))
-  }
-
-  const addingImage = ()=>{
-    document.getElementById('inputImage').click()
-  }
-
-  console.log(initialImages)
-  console.log(newImages)
+  console.log(initialImages);
+  console.log(newImages);
 
   return (
     /*<div className='img_grid'>
@@ -81,34 +72,54 @@ const App = () => {
       })}
     </div>*/
     <>
-      <form onSubmit={formSubmit} style={{textAlign:'center', margin:'1%'}}>
-        <input value={searchValue} onChange={(e)=>setSearchValue(e.target.value)} required='required' placeholder='Enter search value'/>
-        {" "}<button type='submit'>Submit</button>{" "}
-        <button onClick={resetForm} type='button'>Clear</button>
+      <form onSubmit={formSubmit} style={{ textAlign: "center", margin: "1%" }}>
+        <input
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          required="required"
+          placeholder="Enter search value"
+        />{" "}
+        <button type="submit">Submit</button>{" "}
+        <button onClick={resetForm} type="button">
+          Clear
+        </button>
       </form>
-      <div className='img_grid'>
-        {initialImages.map((image, index)=>{
-          return(
+      <div className="img_grid">
+        {initialImages.map((image, index) => {
+          return (
             <div key={index}>
-              <img src={image.url} alt={image.public_id}/>
+              <img src={image.url} alt={image.public_id} />
             </div>
-          )
+          );
         })}
-        {newImages?newImages.map((image, idx)=>{
-          return(
-            <div key={idx}>
-              <img src={image} alt='new' title={`image${idx+1}`} />
-            </div>
-          )
-        }):''}
-        <button onClick={addingImage}><img src={addImage} alt='Add' title='Add Image' width={50} height={60} /></button>
-        <input type='file' accept='image/*' onChange={imageHandler} id='inputImage' style={{display:'none'}} />
-      </div>
-      <div className='footer'>
-        <button type='button' onClick={handleLoadMore} style={{margin:'1%'}}>Load More</button>
+        {newImages
+          ? newImages.map((image, idx) => {
+              return (
+                <div key={idx}>
+                  <img src={image} alt="new" title={`image${idx + 1}`} />
+                </div>
+              );
+            })
+          : ""}
+        <button onClick={addingImage}>
+          <img
+            src={addImage}
+            alt="Add"
+            title="Add Image"
+            width={50}
+            height={60}
+          />
+        </button>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={imageHandler}
+          id="inputImage"
+          style={{ display: "none" }}
+        />
       </div>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
