@@ -23,13 +23,6 @@ const App = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    let added = JSON.parse(localStorage.getItem("images"));
-    if (added) {
-      setNewImages(added);
-    }
-  }, []);
-
   const formSubmit = async (e) => {
     e.preventDefault();
     const responseJson = await searchImages(searchValue, nextCursor);
@@ -51,7 +44,6 @@ const App = () => {
     let newImages1 = [...newImages];
     newImages1.push(newImage);
     setNewImages(newImages1);
-    localStorage.setItem("images", JSON.stringify(newImages1));
   };
 
   const addingImage = () => {
